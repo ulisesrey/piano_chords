@@ -1,7 +1,5 @@
-import random
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QPushButton
 from PySide6.QtCore import Qt, QTimer
-
 
 class PracticePage(QWidget):
     def __init__(self, main_window):
@@ -17,6 +15,11 @@ class PracticePage(QWidget):
         self.chord_label.setAlignment(Qt.AlignCenter)
         self.chord_label.setStyleSheet("font-size: 72px; color: darkgreen;")
 
+        # Feedback label
+        self.feedback_label = QLabel("")  # NEW
+        self.feedback_label.setAlignment(Qt.AlignCenter)
+        self.feedback_label.setStyleSheet("font-size: 24px; color: blue;")  # color optional
+
         # Back button
         self.back_btn = QPushButton("Back to Settings")
         self.back_btn.clicked.connect(self.back_to_settings)
@@ -24,6 +27,7 @@ class PracticePage(QWidget):
         # Layout
         layout = QVBoxLayout()
         layout.addWidget(self.chord_label)
+        layout.addWidget(self.feedback_label)  # NEW
         layout.addWidget(self.back_btn)
         self.setLayout(layout)
 
@@ -36,6 +40,7 @@ class PracticePage(QWidget):
         self.selected_notes = list(selected_notes)
         self.chord_types = list(chord_types)
         self.interval = interval * 1000  # milliseconds
+        self.feedback_label.setText("")  # reset feedback
         self.next_chord()
         self.timer.start(self.interval)
 
@@ -47,9 +52,10 @@ class PracticePage(QWidget):
         note = random.choice(self.selected_notes)
         ctype = random.choice(self.chord_types)
         if ctype == "Major":
-            self.chord_label.setText(f"{note}  ")
+            self.chord_label.setText(f"{note}")
         if ctype == "Minor":
             self.chord_label.setText(f"{note}m")
+        self.feedback_label.setText("")  # clear feedback each new chord
 
     def back_to_settings(self):
         self.timer.stop()
