@@ -17,16 +17,16 @@ class SettingsPage(QWidget):
 
         # Chord selection
         self.selected_notes = set()
-        self.note_buttons = {}
-        notes = ["A", "B", "C", "D", "E", "F", "G"]
+        self.chord_buttons = {}
+        chords = ["A", "B", "C", "D", "E", "F", "G"]
 
         note_layout = QHBoxLayout()
-        for note in notes:
-            btn = QPushButton(note)
+        for chord in chords:
+            btn = QPushButton(chord)
             btn.setCheckable(True)
-            btn.clicked.connect(lambda checked, n=note: self.toggle_note(n))
+            btn.clicked.connect(lambda checked, n=chord: self.toggle_note(n))
             note_layout.addWidget(btn)
-            self.note_buttons[note] = btn
+            self.chord_buttons[chord] = btn
 
         # Chord types
         self.chord_types = set()
