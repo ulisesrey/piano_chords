@@ -1,6 +1,5 @@
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QStackedWidget
-
 from pages.settings_page import SettingsPage
 from pages.practice_page import PracticePage
 
