@@ -18,6 +18,7 @@ classifiers = [
 dependencies = [
     "mkdocs",
     "pip",
+    "pyside6>=6.10.1",
     "python-dotenv",
     "ruff",
 ]
