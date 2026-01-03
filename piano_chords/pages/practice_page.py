@@ -1,8 +1,11 @@
 import random
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QPushButton
-from PySide6.QtCore import Qt, QTimer
+from PySide6.QtCore import Qt, QTimer, Signal
+from midi_input import MidiListener
+from chords_dict import CHORDS
 
 class PracticePage(QWidget):
+    note_pressed = Signal(tuple)
     def __init__(self, main_window):
         super().__init__()
         self.main_window = main_window
@@ -10,6 +13,9 @@ class PracticePage(QWidget):
         self.selected_notes = []
         self.chord_types = []
         self.interval = 5
+
+        # Current pressed
+        self.current_pressed = set() # currently pressed notes
 
         # Label for the chord
         self.chord_label = QLabel("")
@@ -20,6 +26,10 @@ class PracticePage(QWidget):
         self.feedback_label = QLabel("")  # NEW
         self.feedback_label.setAlignment(Qt.AlignCenter)
         self.feedback_label.setStyleSheet("font-size: 24px; color: blue;")  # color optional
+
+        # Midi listener
+        self.midi_listener = MidiListener(self.on_midi_input)
+        self.note_pressed.connect(self.on_note_pressed) # GUI-safe handler
 
         # Back button
         self.back_btn = QPushButton("Back to Settings")
@@ -44,6 +54,9 @@ class PracticePage(QWidget):
         self.feedback_label.setText("")  # reset feedback
         self.next_chord()
         self.timer.start(self.interval)
+        # Start MIDI listener
+        self.midi_listener.start()
+
 
     def next_chord(self):
         """Pick a random chord to display"""
@@ -57,6 +70,35 @@ class PracticePage(QWidget):
         if ctype == "Minor":
             self.chord_label.setText(f"{note}m")
         self.feedback_label.setText("")  # clear feedback each new chord
+        # clear
+        self.current_pressed.clear()
+    
+    def on_midi_input(self, msg):
+        note_name = ['C', 'C#', 'D', 'D#', 'E', 'F', 
+                    'F#', 'G', 'G#', 'A', 'A#', 'B'][msg.note % 12]
+        if msg.type == 'note_on' and msg.velocity > 0:
+            self.note_pressed.emit(("on", note_name))
+        elif msg.type == 'note_off' or (msg.type == 'note_on' and msg.velocity == 0):
+            self.note_pressed.emit(("off", note_name))
+
+
+    def on_note_pressed(self, msg):
+        action, note_name = msg
+        if action == "on":
+            self.current_pressed.add(note_name)
+        else:
+            self.current_pressed.discard(note_name)
+        self.check_chord()
+    
+    def check_chord(self):
+        chord_notes = CHORDS.get(self.chord_label.text(), [])
+        if chord_notes and set(chord_notes).issubset(self.current_pressed):
+            self.feedback_label.setText("Correct!")
+            self.feedback_label.setStyleSheet("color: green; font-size: 24px;")
+        else:
+            self.feedback_label.setText("Play all notes")
+            self.feedback_label.setStyleSheet("color: red; font-size: 24px;")
+
 
     def back_to_settings(self):
         self.timer.stop()
