@@ -1,0 +1,38 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "piano_chords"
+version = "0.0.1"
+description = "App to learn chords and chord progressions"
+authors = [
+  { name = "Ulises Rey" },
+]
+license = { file = "LICENSE" }
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License"
+]
+dependencies = [
+    "mkdocs",
+    "pip",
+    "python-dotenv",
+    "ruff",
+]
+requires-python = "~=3.10.0"
+
+
+[tool.ruff]
+line-length = 99
+src = ["piano_chords"]
+include = ["pyproject.toml", "piano_chords/**/*.py"]
+
+[tool.ruff.lint]
+extend-select = ["I"]  # Add import sorting
+
+[tool.ruff.lint.isort]
+known-first-party = ["piano_chords"]
+force-sort-within-sections = true
+
