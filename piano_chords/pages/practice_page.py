@@ -111,7 +111,7 @@ class PracticePage(QWidget):
     
     def check_chord(self):
         target_notes = CHORDS.get(self.chord_label.text(), [])
-        if target_notes and set(target_notes).issubset(self.current_pressed):
+        if set(target_notes) == self.current_pressed:
             self.feedback_label.setText("Correct!")
             self.feedback_label.setStyleSheet("color: green; font-size: 24px;")
         else:
