@@ -12,7 +12,7 @@ class PracticePage(QWidget):
         super().__init__()
         self.main_window = main_window
 
-        self.selected_notes = [] # TODO: Rename to selected chords for clarity
+        self.selected_chords = [] # TODO: Rename to selected chords for clarity
         self.chord_types = []
         self.interval = 5
 
@@ -58,7 +58,7 @@ class PracticePage(QWidget):
 
     def setup(self, selected_notes, chord_types, interval):
         """Called when practice starts"""
-        self.selected_notes = list(selected_notes)
+        self.selected_chords = list(selected_notes)
         self.chord_types = list(chord_types)
         self.interval = interval * 1000  # milliseconds
         
@@ -71,11 +71,11 @@ class PracticePage(QWidget):
 
     def next_chord(self):
         """Pick a random chord to display"""
-        if not self.selected_notes or not self.chord_types:
+        if not self.selected_chords or not self.chord_types:
             self.chord_label.setText("No chords selected")
             return
         # Select randomly the note and chord
-        note = random.choice(self.selected_notes)
+        note = random.choice(self.selected_chords)
         chord_type = random.choice(self.chord_types)
 
         self.current_chord = f"{note}" if chord_type == "Major" else f"{note}m"
