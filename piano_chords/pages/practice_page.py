@@ -5,17 +5,27 @@ from midi_input import MidiListener
 from chords_dict import CHORDS
 
 class PracticePage(QWidget):
+
     note_pressed = Signal(tuple)
+
     def __init__(self, main_window):
         super().__init__()
         self.main_window = main_window
 
-        self.selected_notes = []
+        self.selected_notes = [] # TODO: Rename to selected chords for clarity
         self.chord_types = []
         self.interval = 5
 
         # Current pressed
         self.current_pressed = set() # currently pressed notes
+
+        # Current Chord
+        self.current_chord = ""
+
+        # Blinking
+        self.blink_timer = QTimer()
+        self.blink_timer.setSingleShot(True)
+        self.blink_timer.timeout.connect(self.show_chord_label)
 
         # Label for the chord
         self.chord_label = QLabel("")
@@ -23,7 +33,7 @@ class PracticePage(QWidget):
         self.chord_label.setStyleSheet("font-size: 72px; color: darkgreen;")
 
         # Feedback label
-        self.feedback_label = QLabel("")  # NEW
+        self.feedback_label = QLabel("")
         self.feedback_label.setAlignment(Qt.AlignCenter)
         self.feedback_label.setStyleSheet("font-size: 24px; color: blue;")  # color optional
 
@@ -51,7 +61,8 @@ class PracticePage(QWidget):
         self.selected_notes = list(selected_notes)
         self.chord_types = list(chord_types)
         self.interval = interval * 1000  # milliseconds
-        self.feedback_label.setText("")  # reset feedback
+        
+        self.feedback_label.setText("Get ready..")  # reset feedback
         self.next_chord()
         self.timer.start(self.interval)
         # Start MIDI listener
@@ -63,15 +74,23 @@ class PracticePage(QWidget):
         if not self.selected_notes or not self.chord_types:
             self.chord_label.setText("No chords selected")
             return
+        # Select randomly the note and chord
         note = random.choice(self.selected_notes)
-        ctype = random.choice(self.chord_types)
-        if ctype == "Major":
-            self.chord_label.setText(f"{note}")
-        if ctype == "Minor":
-            self.chord_label.setText(f"{note}m")
-        self.feedback_label.setText("")  # clear feedback each new chord
-        # clear
+        chord_type = random.choice(self.chord_types)
+
+        self.current_chord = f"{note}" if chord_type == "Major" else f"{note}m"
+
+        # Blink effect
+        self.chord_label.setText("")            # hide chord
+        self.feedback_label.setText("")        # clear feedback
         self.current_pressed.clear()
+
+        self.blink_timer.start(250)              # show after 150ms
+
+
+    def show_chord_label(self):
+        self.chord_label.setText(self.current_chord)
+
     
     def on_midi_input(self, msg):
         note_name = ['C', 'C#', 'D', 'D#', 'E', 'F', 
@@ -91,8 +110,8 @@ class PracticePage(QWidget):
         self.check_chord()
     
     def check_chord(self):
-        chord_notes = CHORDS.get(self.chord_label.text(), [])
-        if chord_notes and set(chord_notes).issubset(self.current_pressed):
+        target_notes = CHORDS.get(self.chord_label.text(), [])
+        if target_notes and set(target_notes).issubset(self.current_pressed):
             self.feedback_label.setText("Correct!")
             self.feedback_label.setStyleSheet("color: green; font-size: 24px;")
         else:
