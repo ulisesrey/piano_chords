@@ -1,3 +1,4 @@
+import random
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QPushButton
 from PySide6.QtCore import Qt, QTimer
 
