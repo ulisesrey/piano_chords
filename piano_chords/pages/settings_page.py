@@ -40,8 +40,20 @@ class SettingsPage(QWidget):
         self.minor_cb = QCheckBox("Minor")
         self.minor_cb.toggled.connect(lambda checked: self.toggle_type("Minor", checked))
 
+        self.diminished_cb = QCheckBox("Diminished")
+        self.diminished_cb.toggled.connect(lambda checked: self.toggle_type("Diminished", checked))
+
+        self.augmented_cb = QCheckBox("Augmented")
+        self.augmented_cb.toggled.connect(lambda checked: self.toggle_type("Augmented", checked))
+
+        self.major7_cb = QCheckBox("Major 7")
+        self.major7_cb.toggled.connect(lambda checked: self.toggle_type("Major 7", checked))
+
         type_layout.addWidget(self.major_cb)
         type_layout.addWidget(self.minor_cb)
+        type_layout.addWidget(self.diminished_cb)
+        type_layout.addWidget(self.augmented_cb)
+        type_layout.addWidget(self.major7_cb)
 
 
         # Interval
