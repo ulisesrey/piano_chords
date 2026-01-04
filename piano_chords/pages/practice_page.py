@@ -90,10 +90,8 @@ class PracticePage(QWidget):
 
 
     def show_chord_label(self):
-        if self.current_chord:
-            self.chord_label.setText(
-                f"{self.current_chord.root} {self.current_chord.quality}"
-            )
+        self.chord_label.setText(self.current_chord.symbol)
+
     
     def on_midi_input(self, msg):
         note_name = ['C', 'C#', 'D', 'D#', 'E', 'F', 
@@ -117,15 +115,11 @@ class PracticePage(QWidget):
         if not self.current_chord:
             return
 
-        required_notes = set(self.current_chord.notes)
-
-        if required_notes.issubset(self.current_pressed):
+        if set(self.current_chord.notes).issubset(self.current_pressed):
             self.feedback_label.setText("Correct!")
             self.feedback_label.setStyleSheet("color: green; font-size: 24px;")
         else:
-            self.feedback_label.setText(
-                f"{len(self.current_pressed & required_notes)}/{len(required_notes)} notes"
-            )
+            self.feedback_label.setText("Play all notes")
             self.feedback_label.setStyleSheet("color: red; font-size: 24px;")
 
 
