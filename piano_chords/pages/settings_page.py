@@ -34,7 +34,6 @@ class SettingsPage(QWidget):
         type_layout = QHBoxLayout()
 
         self.major_cb = QCheckBox("Major")
-        # Use toggled instead of stateChanged
         self.major_cb.toggled.connect(lambda checked: self.toggle_type("Major", checked))
 
         self.minor_cb = QCheckBox("Minor")
