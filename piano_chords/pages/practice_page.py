@@ -83,7 +83,7 @@ class PracticePage(QWidget):
 
     def on_midi_error(self, message):
         self.midi_error_label.setText(
-            f"⚠️ MIDI Error: {message}\nPlease connect a MIDI keyboard."
+            f"⚠️ MIDI Error: {message}\nPlease connect a MIDI keyboard and restart."
         )
 
     def next_chord(self):
