@@ -12,7 +12,7 @@ class PracticePage(QWidget):
         super().__init__()
         self.main_window = main_window
 
-        self.selected_chords = [] # TODO: Rename to selected chords for clarity
+        self.selected_chords = [] 
         self.chord_types = []
         self.interval = 5
 
