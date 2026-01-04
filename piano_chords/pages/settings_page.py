@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (
     QDoubleSpinBox,
 )
 from PySide6.QtCore import Qt
-
+from chord_generator import Chord
 
 class SettingsPage(QWidget):
     def __init__(self, main_window):
@@ -19,16 +19,14 @@ class SettingsPage(QWidget):
         # Chord selection
         self.selected_notes = set()
         self.chord_buttons = {}
-        # TODO: Should read from shomewhere else
-        chords = ["A", "B", "C", "D", "E", "F", "G"]
 
         note_layout = QHBoxLayout()
-        for chord in chords:
-            btn = QPushButton(chord)
+        for note in Chord.NOTES:
+            btn = QPushButton(note)
             btn.setCheckable(True)
-            btn.clicked.connect(lambda checked, n=chord: self.toggle_note(n))
+            btn.clicked.connect(lambda checked, n=note: self.toggle_note(n))
             note_layout.addWidget(btn)
-            self.chord_buttons[chord] = btn
+            self.chord_buttons[note] = btn
 
         # Chord types
         self.chord_types = set()
@@ -37,21 +35,15 @@ class SettingsPage(QWidget):
         self.chord_type_checkboxes = {}
 
         # TODO: Should read from config or other file
-        chord_types = [
-            "Major",
-            "Minor",
-            "Diminished",
-            "Augmented",
-            "Major 7",
-        ]
+        formulas = list(Chord.FORMULAS.keys())
 
-        for chord_type in chord_types:
-            cb = QCheckBox(chord_type)
+        for formula in formulas:
+            cb = QCheckBox(formula)
             cb.toggled.connect(
-                lambda checked, ct=chord_type: self.toggle_type(ct, checked)
+                lambda checked, ct=formula: self.toggle_type(ct, checked)
             )
             type_layout.addWidget(cb)
-            self.chord_type_checkboxes[chord_type] = cb
+            self.chord_type_checkboxes[formula] = cb
 
         # Interval
         interval_layout = QHBoxLayout()
