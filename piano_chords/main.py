@@ -8,7 +8,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Piano Trainer")
-        self.resize(500, 400)
+        self.resize(800, 800)
 
         self.stack = QStackedWidget()
         self.setCentralWidget(self.stack)
