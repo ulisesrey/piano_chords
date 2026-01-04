@@ -39,8 +39,17 @@ class PracticePage(QWidget):
         self.feedback_label.setStyleSheet("font-size: 24px; color: blue;")  # color optional
 
         # Midi listener
-        self.midi_listener = MidiListener(self.on_midi_input)
+        self.midi_listener = MidiListener(
+            self.on_midi_input,
+            error_callback=self.on_midi_error
+            )
         self.note_pressed.connect(self.on_note_pressed) # GUI-safe handler
+
+        self.midi_error_label = QLabel("")
+        self.midi_error_label.setAlignment(Qt.AlignCenter)
+        self.midi_error_label.setStyleSheet(
+            "color: red; font-size: 16px; font-weight: bold;"
+        )
 
         # Back button
         self.back_btn = QPushButton("Back to Settings")
@@ -48,6 +57,7 @@ class PracticePage(QWidget):
 
         # Layout
         layout = QVBoxLayout()
+        layout.addWidget(self.midi_error_label)
         layout.addWidget(self.chord_label)
         layout.addWidget(self.feedback_label)
         layout.addWidget(self.back_btn)
@@ -66,9 +76,15 @@ class PracticePage(QWidget):
         self.feedback_label.setText("Get ready..")  # reset feedback
         self.next_chord()
         self.timer.start(self.interval)
+        # Remove error message
+        self.midi_error_label.setText("")
         # Start MIDI listener
         self.midi_listener.start()
 
+    def on_midi_error(self, message):
+        self.midi_error_label.setText(
+            f"⚠️ MIDI Error: {message}\nPlease connect a MIDI keyboard."
+        )
 
     def next_chord(self):
         """Pick a random chord to display"""
