@@ -33,26 +33,24 @@ class SettingsPage(QWidget):
         self.chord_types = set()
         type_layout = QHBoxLayout()
 
-        self.major_cb = QCheckBox("Major")
-        self.major_cb.toggled.connect(lambda checked: self.toggle_type("Major", checked))
+        self.chord_type_checkboxes = {}
 
-        self.minor_cb = QCheckBox("Minor")
-        self.minor_cb.toggled.connect(lambda checked: self.toggle_type("Minor", checked))
+        chord_types = [
+            "Major",
+            "Minor",
+            "Diminished",
+            "Augmented",
+            "Major 7",
+        ]
 
-        self.diminished_cb = QCheckBox("Diminished")
-        self.diminished_cb.toggled.connect(lambda checked: self.toggle_type("Diminished", checked))
+        for chord_type in chord_types:
+            cb = QCheckBox(chord_type)
+            cb.toggled.connect(
+                lambda checked, ct=chord_type: self.toggle_type(ct, checked)
+            )
+            type_layout.addWidget(cb)
+            self.chord_type_checkboxes[chord_type] = cb
 
-        self.augmented_cb = QCheckBox("Augmented")
-        self.augmented_cb.toggled.connect(lambda checked: self.toggle_type("Augmented", checked))
-
-        self.major7_cb = QCheckBox("Major 7")
-        self.major7_cb.toggled.connect(lambda checked: self.toggle_type("Major 7", checked))
-
-        type_layout.addWidget(self.major_cb)
-        type_layout.addWidget(self.minor_cb)
-        type_layout.addWidget(self.diminished_cb)
-        type_layout.addWidget(self.augmented_cb)
-        type_layout.addWidget(self.major7_cb)
 
 
         # Interval
