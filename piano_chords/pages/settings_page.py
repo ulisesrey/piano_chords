@@ -6,6 +6,7 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QCheckBox,
     QSpinBox,
+    QDoubleSpinBox,
 )
 from PySide6.QtCore import Qt
 
@@ -46,9 +47,11 @@ class SettingsPage(QWidget):
         # Interval
         interval_layout = QHBoxLayout()
         interval_label = QLabel("Interval (seconds):")
-        self.interval_spin = QSpinBox()
-        self.interval_spin.setRange(1, 30)
-        self.interval_spin.setValue(5)
+        self.interval_spin = QDoubleSpinBox()
+        self.interval_spin.setRange(0.1, 30)
+        self.interval_spin.setSingleStep(0.1)   # step size
+        self.interval_spin.setDecimals(1)
+        self.interval_spin.setValue(3)
         interval_layout.addWidget(interval_label)
         interval_layout.addWidget(self.interval_spin)
 
