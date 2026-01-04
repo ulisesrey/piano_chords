@@ -19,6 +19,7 @@ class SettingsPage(QWidget):
         # Chord selection
         self.selected_notes = set()
         self.chord_buttons = {}
+        # TODO: Should read from shomewhere else
         chords = ["A", "B", "C", "D", "E", "F", "G"]
 
         note_layout = QHBoxLayout()
@@ -35,6 +36,7 @@ class SettingsPage(QWidget):
 
         self.chord_type_checkboxes = {}
 
+        # TODO: Should read from config or other file
         chord_types = [
             "Major",
             "Minor",
@@ -51,14 +53,12 @@ class SettingsPage(QWidget):
             type_layout.addWidget(cb)
             self.chord_type_checkboxes[chord_type] = cb
 
-
-
         # Interval
         interval_layout = QHBoxLayout()
         interval_label = QLabel("Interval (seconds):")
         self.interval_spin = QDoubleSpinBox()
         self.interval_spin.setRange(0.1, 30)
-        self.interval_spin.setSingleStep(0.1)   # step size
+        self.interval_spin.setSingleStep(0.1) # step size
         self.interval_spin.setDecimals(1)
         self.interval_spin.setValue(3)
         interval_layout.addWidget(interval_label)
