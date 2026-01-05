@@ -2,11 +2,11 @@
 # GLOBALS                                                                       #
 #################################################################################
 
-PROJECT_NAME = piano_chords
+PROJECT_NAME = PianoTrainer
 PYTHON_INTERPRETER = python
 MAIN_SCRIPT = ./piano_chords/main.py
 DIST_DIR = dist
-DIST_NAME = PianoTrainer
+ICON_FILE = piano_chords/logo/icon.icns
 
 #################################################################################
 # COMMANDS                                                                      #
@@ -23,11 +23,17 @@ build:
 	uv run pyinstaller \
 		--windowed \
 		--onefile \
-		--name $(DIST_NAME) \
-		--icon=piano_chords/logo/icon.icns \
+		--name $(PROJECT_NAME) \
+		--icon=$(ICON_FILE) \
 		--collect-submodules piano_chords.pages \
 		--collect-submodules mido.backends \
 		$(MAIN_SCRIPT)
+
+## Zip the .app for distribution
+.PHONY: zip
+zip:
+	cd $(DIST_DIR) && zip -r $(PROJECT_NAME).zip $(PROJECT_NAME).app
+	@echo ">>> Zip created at $(DIST_DIR)/$(PROJECT_NAME).zip"
 
 ## Clean up build artifacts
 .PHONY: clean
@@ -36,4 +42,3 @@ clean:
 	rm -rf $(DIST_DIR)
 	rm -rf *.spec
 	find . -type d -name "__pycache__" -exec rm -rf {} +
-
