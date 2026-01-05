@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (
     QDoubleSpinBox,
 )
 from PySide6.QtCore import Qt
-from chord_generator import Chord
+from piano_chords.chord_generator import Chord
 
 class SettingsPage(QWidget):
     def __init__(self, main_window):

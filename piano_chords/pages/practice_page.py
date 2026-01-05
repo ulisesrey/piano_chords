@@ -2,7 +2,7 @@ import random
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QPushButton
 from PySide6.QtCore import Qt, QTimer, Signal
 from midi_input import MidiListener
-from chord_generator import Chord
+from piano_chords.chord_generator import Chord
 # from chords_dict import CHORDS
 
 class PracticePage(QWidget):
