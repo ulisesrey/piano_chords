@@ -1,7 +1,7 @@
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QStackedWidget
-from pages.settings_page import SettingsPage
-from pages.practice_page import PracticePage
+from piano_chords.pages.settings_page import SettingsPage
+from piano_chords.pages.practice_page import PracticePage
 
 
 class MainWindow(QMainWindow):
