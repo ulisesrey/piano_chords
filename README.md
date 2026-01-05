@@ -3,8 +3,6 @@
 App to learn chords and chord progressions
 
 
-## Hardware setup
-
 ## Run
 Download the last version of the app at the [release section](https://github.com/ulisesrey/piano_chords/releases).
 Right now only available for mac.
