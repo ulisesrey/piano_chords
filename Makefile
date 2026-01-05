@@ -3,76 +3,37 @@
 #################################################################################
 
 PROJECT_NAME = piano_chords
-PYTHON_VERSION = 3.10
 PYTHON_INTERPRETER = python
+MAIN_SCRIPT = ./piano_chords/main.py
+DIST_DIR = dist
+DIST_NAME = PianoTrainer
 
 #################################################################################
 # COMMANDS                                                                      #
 #################################################################################
 
+## Run the app
+.PHONY: run
+run:
+	uv run $(MAIN_SCRIPT)
 
-## Install Python dependencies
-.PHONY: requirements
-requirements:
-	uv sync
-	
+## Build the app with PyInstaller (macOS GUI)
+.PHONY: build
+build:
+	uv run pyinstaller \
+		--windowed \
+		--onefile \
+		--name $(DIST_NAME) \
+		--icon=piano_chords/logo/icon.icns \
+		--collect-submodules piano_chords.pages \
+		--collect-submodules mido.backends \
+		$(MAIN_SCRIPT)
 
-
-
-## Delete all compiled Python files
+## Clean up build artifacts
 .PHONY: clean
 clean:
-	find . -type f -name "*.py[co]" -delete
-	find . -type d -name "__pycache__" -delete
+	rm -rf build
+	rm -rf $(DIST_DIR)
+	rm -rf *.spec
+	find . -type d -name "__pycache__" -exec rm -rf {} +
 
-
-## Lint using ruff (use `make format` to do formatting)
-.PHONY: lint
-lint:
-	ruff format --check
-	ruff check
-
-## Format source code with ruff
-.PHONY: format
-format:
-	ruff check --fix
-	ruff format
-
-
-
-
-
-## Set up Python interpreter environment
-.PHONY: create_environment
-create_environment:
-	uv venv --python $(PYTHON_VERSION)
-	@echo ">>> New uv virtual environment created. Activate with:"
-	@echo ">>> Windows: .\\\\.venv\\\\Scripts\\\\activate"
-	@echo ">>> Unix/macOS: source ./.venv/bin/activate"
-	
-
-
-
-#################################################################################
-# PROJECT RULES                                                                 #
-#################################################################################
-
-
-
-#################################################################################
-# Self Documenting Commands                                                     #
-#################################################################################
-
-.DEFAULT_GOAL := help
-
-define PRINT_HELP_PYSCRIPT
-import re, sys; \
-lines = '\n'.join([line for line in sys.stdin]); \
-matches = re.findall(r'\n## (.*)\n[\s\S]+?\n([a-zA-Z_-]+):', lines); \
-print('Available rules:\n'); \
-print('\n'.join(['{:25}{}'.format(*reversed(match)) for match in matches]))
-endef
-export PRINT_HELP_PYSCRIPT
-
-help:
-	@$(PYTHON_INTERPRETER) -c "${PRINT_HELP_PYSCRIPT}" < $(MAKEFILE_LIST)
