@@ -17,6 +17,8 @@ class PracticePage(QWidget):
         self.chord_types = []
         self.interval = 5
 
+        # Previous Chord
+        self.previous_chord = None
         # Current pressed
         self.current_pressed = set() # currently pressed notes
 
@@ -97,12 +99,23 @@ class PracticePage(QWidget):
 
         self.current_chord = Chord(root, quality)
 
+        # If it's the same as previous, pick the *next root in the list*
+        if self.current_chord == self.previous_chord:
+            # Find current root index
+            idx = self.selected_roots.index(root)
+            # Pick next root cyclically
+            next_idx = (idx + 1) % len(self.selected_roots)
+            self.current_chord = Chord(self.selected_roots[next_idx], quality)
+
+        self.previous_chord = self.current_chord
+
+
         # Blink effect
         self.chord_label.setText("")            # hide chord
         self.feedback_label.setText("")        # clear feedback
         self.current_pressed.clear()
 
-        self.blink_timer.start(250)              # show after 150ms
+        self.blink_timer.start(250)              # show after 250ms
 
 
     def show_chord_label(self):

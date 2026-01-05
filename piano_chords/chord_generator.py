@@ -46,3 +46,9 @@ class Chord:
 
     def __repr__(self):
         return f"{self.symbol}: {', '.join(self.notes)}"
+    
+    def __eq__(self, other):
+        if not isinstance(other, Chord):
+            return False
+        return self.root == other.root and self.quality == other.quality
+
