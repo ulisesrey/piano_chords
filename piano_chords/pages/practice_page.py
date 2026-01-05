@@ -110,6 +110,7 @@ class PracticePage(QWidget):
 
     
     def on_midi_input(self, msg):
+        # TODO: SHould come from chord generator
         note_name = ['C', 'C#', 'D', 'D#', 'E', 'F', 
                     'F#', 'G', 'G#', 'A', 'A#', 'B'][msg.note % 12]
         if msg.type == 'note_on' and msg.velocity > 0:
