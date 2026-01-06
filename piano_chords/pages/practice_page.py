@@ -33,7 +33,7 @@ class PracticePage(QWidget):
         # Label for the chord
         self.chord_label = QLabel("")
         self.chord_label.setAlignment(Qt.AlignCenter)
-        self.chord_label.setStyleSheet("font-size: 100px; color: darkgreen;")
+        self.chord_label.setStyleSheet("font-size: 200px; color: darkgreen;")
 
         # Feedback label
         self.feedback_label = QLabel("")
@@ -147,10 +147,10 @@ class PracticePage(QWidget):
 
         if set(self.current_chord.notes).issubset(self.current_pressed):
             self.feedback_label.setText("Correct!")
-            self.feedback_label.setStyleSheet("color: green; font-size: 24px;")
+            self.feedback_label.setStyleSheet("color: green; font-size: 100px;")
         else:
             self.feedback_label.setText("Play all notes")
-            self.feedback_label.setStyleSheet("color: red; font-size: 24px;")
+            self.feedback_label.setStyleSheet("color: red; font-size: 100px;")
 
 
     def back_to_settings(self):
