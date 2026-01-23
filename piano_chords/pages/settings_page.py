@@ -32,7 +32,7 @@ class SettingsPage(QWidget):
         self.chord_input = QLineEdit()
         self.chord_input.setPlaceholderText("Em, A, G, F#")
         self.random_checkbox = QCheckBox("Random order")
-        self.random_checkbox.setChecked(True)
+        self.random_checkbox.setChecked(False)
         
         # Chord selection
         self.selected_notes = set()
