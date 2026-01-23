@@ -15,6 +15,7 @@ class PracticePage(QWidget):
 
         self.selected_roots = [] 
         self.chord_types = []
+        self.custom_chords = []  # For custom chord input
         self.interval = 5
 
         # Previous Chord
@@ -70,9 +71,25 @@ class PracticePage(QWidget):
         self.timer.timeout.connect(self.next_chord)
 
     def setup(self, selected_roots, chord_types, interval):
-        """Called when practice starts"""
+        """Called when practice starts with note/type selection"""
         self.selected_roots = list(selected_roots)
         self.chord_types = list(chord_types)
+        self.custom_chords = []
+        self.interval = interval * 1000  # milliseconds
+        
+        self.feedback_label.setText("Get ready..")  # reset feedback
+        self.next_chord()
+        self.timer.start(self.interval)
+        # Remove error message
+        self.midi_error_label.setText("")
+        # Start MIDI listener
+        self.midi_listener.start()
+    
+    def setup_with_chords(self, chords, interval):
+        """Called when practice starts with custom chord input"""
+        self.custom_chords = chords
+        self.selected_roots = []
+        self.chord_types = []
         self.interval = interval * 1000  # milliseconds
         
         self.feedback_label.setText("Get ready..")  # reset feedback
@@ -90,25 +107,32 @@ class PracticePage(QWidget):
 
     def next_chord(self):
         """Pick a random chord to display"""
-        if not self.selected_roots or not self.chord_types:
+        if self.custom_chords:
+            # Use custom chords
+            self.current_chord = random.choice(self.custom_chords)
+        elif self.selected_roots and self.chord_types:
+            # Use note/type selection
+            root = random.choice(self.selected_roots)
+            quality = random.choice(self.chord_types)
+            self.current_chord = Chord(root, quality)
+        else:
             self.chord_label.setText("No chords selected")
             return
-        # Select randomly the chord and chord type
-        root = random.choice(self.selected_roots)
-        quality = random.choice(self.chord_types)
 
-        self.current_chord = Chord(root, quality)
-
-        # If it's the same as previous, pick the *next root in the list*
-        if self.current_chord == self.previous_chord:
-            # Find current root index
-            idx = self.selected_roots.index(root)
-            # Pick next root cyclically
-            next_idx = (idx + 1) % len(self.selected_roots)
-            self.current_chord = Chord(self.selected_roots[next_idx], quality)
+        # If it's the same as previous, pick another
+        if self.current_chord == self.previous_chord and len(self.custom_chords or self.selected_roots) > 1:
+            if self.custom_chords:
+                # For custom chords, pick a different one
+                available = [c for c in self.custom_chords if c != self.previous_chord]
+                if available:
+                    self.current_chord = random.choice(available)
+            else:
+                # For note/type selection, pick next root
+                idx = self.selected_roots.index(self.current_chord.root)
+                next_idx = (idx + 1) % len(self.selected_roots)
+                self.current_chord = Chord(self.selected_roots[next_idx], self.current_chord.quality)
 
         self.previous_chord = self.current_chord
-
 
         # Blink effect
         self.chord_label.setText("")            # hide chord

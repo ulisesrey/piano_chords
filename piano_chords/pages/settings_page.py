@@ -7,6 +7,7 @@ from PySide6.QtWidgets import (
     QCheckBox,
     QSpinBox,
     QDoubleSpinBox,
+    QLineEdit,
 )
 from PySide6.QtCore import Qt
 from piano_chords.chord_generator import Chord
@@ -16,6 +17,11 @@ class SettingsPage(QWidget):
         super().__init__()
         self.main_window = main_window
 
+        # Custom chord input
+        chord_input_label = QLabel("Enter chords (e.g., Em, A, G, F#):")
+        self.chord_input = QLineEdit()
+        self.chord_input.setPlaceholderText("Em, A, G, F#")
+        
         # Chord selection
         self.selected_notes = set()
         self.chord_buttons = {}
@@ -62,6 +68,8 @@ class SettingsPage(QWidget):
 
         # Main layout
         layout = QVBoxLayout()
+        layout.addWidget(chord_input_label)
+        layout.addWidget(self.chord_input)
         layout.addLayout(note_layout)
         layout.addLayout(type_layout)
         layout.addLayout(interval_layout)
@@ -74,23 +82,72 @@ class SettingsPage(QWidget):
             self.selected_notes.remove(note)
         else:
             self.selected_notes.add(note)
-        print("Selected notes now:", self.selected_notes)
 
     def toggle_type(self, chord_type, checked):
         if checked:
-            print("Adding chord type:", chord_type)
             self.chord_types.add(chord_type)
         else:
-            print("Removing chord type:", chord_type)
             self.chord_types.discard(chord_type)
 
-        print("Selected types now:", self.chord_types)
+    def parse_chord_input(self):
+        """Parse chord input like 'Em, A, G, F#' into list of Chord objects"""
+        chord_text = self.chord_input.text().strip()
+        if not chord_text:
+            return []
+        
+        chords = []
+        for chord_str in chord_text.split(','):
+            chord_str = chord_str.strip()
+            if not chord_str:
+                continue
+                
+            # Parse chord symbol to root and quality
+            root, quality = self.parse_chord_symbol(chord_str)
+            if root and quality:
+                chords.append(Chord(root, quality))
+        return chords
+    
+    def parse_chord_symbol(self, symbol):
+        """Parse chord symbol like 'Em' or 'F#' into root and quality"""
+        symbol = symbol.strip()
+        
+        # Check for sharp notes first (2 characters)
+        if len(symbol) >= 2 and symbol[1] == '#':
+            root = symbol[:2]
+            suffix = symbol[2:]
+        else:
+            root = symbol[0]
+            suffix = symbol[1:]
+        
+        if root not in Chord.NOTES:
+            return None, None
+            
+        # Map suffixes to quality names
+        suffix_map = {
+            '': 'Major',
+            'm': 'Minor', 
+            '°': 'Diminished',
+            '+': 'Augmented',
+            'maj7': 'Major 7',
+            '7': 'Dominant 7',
+            'm7': 'Minor 7',
+            'ø7': 'Half-diminished 7',
+            '°7': 'Diminished 7'
+        }
+        
+        quality = suffix_map.get(suffix)
+        return root, quality
 
     def start_practice(self):
-        if not self.selected_notes or not self.chord_types:
-            print("Select at least one note and chord type")
-            return
-        interval = self.interval_spin.value()
-        self.main_window.start_practice(
-            self.selected_notes, self.chord_types, interval
-        )
+        # Check if custom chords are entered
+        custom_chords = self.parse_chord_input()
+        if custom_chords:
+            interval = self.interval_spin.value()
+            self.main_window.start_practice_with_chords(custom_chords, interval)
+        elif self.selected_notes and self.chord_types:
+            interval = self.interval_spin.value()
+            self.main_window.start_practice(
+                self.selected_notes, self.chord_types, interval
+            )
+        else:
+            print("Enter chords or select at least one note and chord type")
