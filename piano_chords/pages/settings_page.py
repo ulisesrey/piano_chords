@@ -8,7 +8,10 @@ from PySide6.QtWidgets import (
     QSpinBox,
     QDoubleSpinBox,
     QLineEdit,
+    QComboBox,
 )
+import yaml
+import os
 from PySide6.QtCore import Qt
 from piano_chords.chord_generator import Chord
 
@@ -17,6 +20,13 @@ class SettingsPage(QWidget):
         super().__init__()
         self.main_window = main_window
 
+        # Progression dropdown
+        progression_label = QLabel("Or select a progression:")
+        self.progression_combo = QComboBox()
+        self.progression_combo.addItem("-- Select Progression --")
+        self.load_progressions()
+        self.progression_combo.currentTextChanged.connect(self.on_progression_selected)
+        
         # Custom chord input
         chord_input_label = QLabel("Enter chords (e.g., Em, A, G, F#):")
         self.chord_input = QLineEdit()
@@ -70,6 +80,8 @@ class SettingsPage(QWidget):
 
         # Main layout
         layout = QVBoxLayout()
+        layout.addWidget(progression_label)
+        layout.addWidget(self.progression_combo)
         layout.addWidget(chord_input_label)
         layout.addWidget(self.chord_input)
         layout.addWidget(self.random_checkbox)
@@ -92,8 +104,31 @@ class SettingsPage(QWidget):
         else:
             self.chord_types.discard(chord_type)
 
+    def load_progressions(self):
+        """Load chord progressions from YAML file"""
+        try:
+            yaml_path = os.path.join(os.path.dirname(__file__), '..', 'progressions.yaml')
+            with open(yaml_path, 'r') as f:
+                data = yaml.safe_load(f)
+                for name in data['progressions'].keys():
+                    self.progression_combo.addItem(name)
+        except Exception as e:
+            print(f"Could not load progressions: {e}")
+    
+    def on_progression_selected(self, progression_name):
+        """Load selected progression into chord input"""
+        if progression_name == "-- Select Progression --":
+            return
+        try:
+            yaml_path = os.path.join(os.path.dirname(__file__), '..', 'progressions.yaml')
+            with open(yaml_path, 'r') as f:
+                data = yaml.safe_load(f)
+                chords = data['progressions'].get(progression_name, "")
+                self.chord_input.setText(chords)
+        except Exception as e:
+            print(f"Could not load progression: {e}")
+    
     def parse_chord_input(self):
-        """Parse chord input like 'Em, A, G, F#' into list of Chord objects"""
         chord_text = self.chord_input.text().strip()
         if not chord_text:
             return []

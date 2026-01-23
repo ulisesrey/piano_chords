@@ -1,0 +1,11 @@
+progressions:
+  "I-V-vi-IV (C major)": "C, G, Am, F"
+  "ii-V-I (C major)": "Dm, G, C"
+  "vi-IV-I-V (Am)": "Am, F, C, G"
+  "I-vi-ii-V (C major)": "C, Am, Dm, G"
+  "12 Bar Blues (C)": "C7, C7, C7, C7, F7, F7, C7, C7, G7, F7, C7, G7"
+  "Autumn Leaves": "Cm, F7, BbMaj7, EbMaj7, Am7b5, D7, Gm"
+  "Circle of Fifths": "C, G, D, A, E, B, F#, C#"
+  "Pop Progression": "C, G, Am, F"
+  "Jazz ii-V-I": "Dm7, G7, CMaj7"
+  "Minor ii-V-i": "Am7b5, D7, Gm"

@@ -194,6 +194,7 @@ dependencies = [
     { name = "pyside6" },
     { name = "python-dotenv" },
     { name = "python-rtmidi" },
+    { name = "pyyaml" },
     { name = "ruff" },
 ]
 
@@ -206,6 +207,7 @@ requires-dist = [
     { name = "pyside6", specifier = ">=6.10.1" },
     { name = "python-dotenv" },
     { name = "python-rtmidi", specifier = ">=1.5.8" },
+    { name = "pyyaml", specifier = ">=6.0" },
     { name = "ruff" },
 ]
 
