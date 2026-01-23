@@ -18,6 +18,7 @@ class PracticePage(QWidget):
         self.custom_chords = []  # For custom chord input
         self.random_mode = True  # Whether to play chords randomly or in sequence
         self.chord_index = 0  # Current index for sequential mode
+        self.progression_title = None  # Title of current progression
         self.interval = 5
 
         # Previous Chord
@@ -32,6 +33,11 @@ class PracticePage(QWidget):
         self.blink_timer = QTimer()
         self.blink_timer.setSingleShot(True)
         self.blink_timer.timeout.connect(self.show_chord_label)
+
+        # Progression title label
+        self.title_label = QLabel("")
+        self.title_label.setAlignment(Qt.AlignCenter)
+        self.title_label.setStyleSheet("font-size: 18px; color: darkblue; font-weight: bold;")
 
         # Label for the chord
         self.chord_label = QLabel("")
@@ -63,6 +69,7 @@ class PracticePage(QWidget):
         # Layout
         layout = QVBoxLayout()
         layout.addWidget(self.midi_error_label)
+        layout.addWidget(self.title_label)
         layout.addWidget(self.chord_label)
         layout.addWidget(self.feedback_label)
         layout.addWidget(self.back_btn)
@@ -87,14 +94,21 @@ class PracticePage(QWidget):
         # Start MIDI listener
         self.midi_listener.start()
     
-    def setup_with_chords(self, chords, interval, random_mode):
+    def setup_with_chords(self, chords, interval, random_mode, progression_title=None):
         """Called when practice starts with custom chord input"""
         self.custom_chords = chords
         self.random_mode = random_mode
         self.chord_index = 0
+        self.progression_title = progression_title
         self.selected_roots = []
         self.chord_types = []
         self.interval = interval * 1000  # milliseconds
+        
+        # Set title if available
+        if self.progression_title:
+            self.title_label.setText(self.progression_title)
+        else:
+            self.title_label.setText("")
         
         self.feedback_label.setText("Get ready..")  # reset feedback
         self.next_chord()

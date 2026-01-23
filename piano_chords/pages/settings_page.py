@@ -182,7 +182,11 @@ class SettingsPage(QWidget):
         if custom_chords:
             interval = self.interval_spin.value()
             random_mode = self.random_checkbox.isChecked()
-            self.main_window.start_practice_with_chords(custom_chords, interval, random_mode)
+            # Check if progression was selected from dropdown
+            progression_title = None
+            if self.progression_combo.currentText() != "-- Select Progression --":
+                progression_title = self.progression_combo.currentText()
+            self.main_window.start_practice_with_chords(custom_chords, interval, random_mode, progression_title)
         elif self.selected_notes and self.chord_types:
             interval = self.interval_spin.value()
             self.main_window.start_practice(
