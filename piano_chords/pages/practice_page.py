@@ -16,6 +16,8 @@ class PracticePage(QWidget):
         self.selected_roots = [] 
         self.chord_types = []
         self.custom_chords = []  # For custom chord input
+        self.random_mode = True  # Whether to play chords randomly or in sequence
+        self.chord_index = 0  # Current index for sequential mode
         self.interval = 5
 
         # Previous Chord
@@ -85,9 +87,11 @@ class PracticePage(QWidget):
         # Start MIDI listener
         self.midi_listener.start()
     
-    def setup_with_chords(self, chords, interval):
+    def setup_with_chords(self, chords, interval, random_mode):
         """Called when practice starts with custom chord input"""
         self.custom_chords = chords
+        self.random_mode = random_mode
+        self.chord_index = 0
         self.selected_roots = []
         self.chord_types = []
         self.interval = interval * 1000  # milliseconds
@@ -109,7 +113,11 @@ class PracticePage(QWidget):
         """Pick a random chord to display"""
         if self.custom_chords:
             # Use custom chords
-            self.current_chord = random.choice(self.custom_chords)
+            if self.random_mode:
+                self.current_chord = random.choice(self.custom_chords)
+            else:
+                self.current_chord = self.custom_chords[self.chord_index]
+                self.chord_index = (self.chord_index + 1) % len(self.custom_chords)
         elif self.selected_roots and self.chord_types:
             # Use note/type selection
             root = random.choice(self.selected_roots)
@@ -119,8 +127,8 @@ class PracticePage(QWidget):
             self.chord_label.setText("No chords selected")
             return
 
-        # If it's the same as previous, pick another
-        if self.current_chord == self.previous_chord and len(self.custom_chords or self.selected_roots) > 1:
+        # If it's the same as previous, pick another (only in random mode)
+        if self.random_mode and self.current_chord == self.previous_chord and len(self.custom_chords or self.selected_roots) > 1:
             if self.custom_chords:
                 # For custom chords, pick a different one
                 available = [c for c in self.custom_chords if c != self.previous_chord]

@@ -21,6 +21,8 @@ class SettingsPage(QWidget):
         chord_input_label = QLabel("Enter chords (e.g., Em, A, G, F#):")
         self.chord_input = QLineEdit()
         self.chord_input.setPlaceholderText("Em, A, G, F#")
+        self.random_checkbox = QCheckBox("Random order")
+        self.random_checkbox.setChecked(True)
         
         # Chord selection
         self.selected_notes = set()
@@ -70,6 +72,7 @@ class SettingsPage(QWidget):
         layout = QVBoxLayout()
         layout.addWidget(chord_input_label)
         layout.addWidget(self.chord_input)
+        layout.addWidget(self.random_checkbox)
         layout.addLayout(note_layout)
         layout.addLayout(type_layout)
         layout.addLayout(interval_layout)
@@ -143,7 +146,8 @@ class SettingsPage(QWidget):
         custom_chords = self.parse_chord_input()
         if custom_chords:
             interval = self.interval_spin.value()
-            self.main_window.start_practice_with_chords(custom_chords, interval)
+            random_mode = self.random_checkbox.isChecked()
+            self.main_window.start_practice_with_chords(custom_chords, interval, random_mode)
         elif self.selected_notes and self.chord_types:
             interval = self.interval_spin.value()
             self.main_window.start_practice(

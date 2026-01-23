@@ -31,11 +31,11 @@ class MainWindow(QMainWindow):
         self.practice_page.setup(selected_notes, chord_types, interval)
         self.stack.setCurrentWidget(self.practice_page)
     
-    def start_practice_with_chords(self, chords, interval):
+    def start_practice_with_chords(self, chords, interval, random_mode):
         """
         Called by SettingsPage when custom chords are entered
         """
-        self.practice_page.setup_with_chords(chords, interval)
+        self.practice_page.setup_with_chords(chords, interval, random_mode)
         self.stack.setCurrentWidget(self.practice_page)
 
     def back_to_settings(self):
