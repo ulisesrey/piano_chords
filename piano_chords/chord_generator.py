@@ -31,7 +31,7 @@ class Chord:
 
     def __init__(self, root, quality):
         self.root = root
-        self.quality = quality
+        self.quality = quality # Major, minor, augmented..
         self.notes = self._calculate_notes()
 
     def _calculate_notes(self):
