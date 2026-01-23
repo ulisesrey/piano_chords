@@ -52,7 +52,7 @@ class SettingsPage(QWidget):
 
         self.chord_type_checkboxes = {}
 
-        # TODO: Should read from config or other file
+        # read from the Chord class the Formulas
         formulas = list(Chord.FORMULAS.keys())
 
         for formula in formulas:
