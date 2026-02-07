@@ -28,6 +28,7 @@ class SettingsPage(QWidget):
         self.progression_combo.addItem("-- Select Progression --")
         self.load_progressions()
         self.progression_combo.currentTextChanged.connect(self.on_progression_selected)
+        self.progression_combo.setCurrentIndex(1)  # Select first progression by default
         
         root_layout = QHBoxLayout()
         root_label = QLabel("Root note:")
@@ -73,7 +74,7 @@ class SettingsPage(QWidget):
         settings_layout = QHBoxLayout()
         
         self.random_checkbox = QCheckBox("Random order")
-        self.random_checkbox.setChecked(True)
+        self.random_checkbox.setChecked(False)
         
         interval_label = QLabel("Interval (seconds):")
         self.interval_spin = QDoubleSpinBox()
