@@ -21,13 +21,13 @@ class SettingsPage(QWidget):
         self.main_window = main_window
         
         # Set minimum size for better layout
-        self.setMinimumWidth(700)
+        self.setMinimumWidth(750)
 
         # Option 1: Select Progression (Light Green Background)
         progression_group = QGroupBox("Option 1: Select a Progression")
         progression_group.setStyleSheet("""
             QGroupBox { 
-                font-size: 16px; 
+                font-size: 18px; 
                 font-weight: bold; 
                 padding-top: 15px;
                 background-color: rgba(76, 175, 80, 0.15);
@@ -40,14 +40,14 @@ class SettingsPage(QWidget):
                 left: 10px;
                 padding: 0 5px;
             }
-            QLabel { font-size: 15px; }
+            QLabel { font-size: 17px; }
         """)
         progression_layout = QVBoxLayout()
         progression_layout.setSpacing(12)
         
         self.progression_combo = QComboBox()
-        self.progression_combo.setMinimumHeight(40)
-        self.progression_combo.setStyleSheet("QComboBox { font-size: 15px; }")
+        self.progression_combo.setMinimumHeight(45)
+        self.progression_combo.setStyleSheet("QComboBox { font-size: 17px; }")
         self.progression_combo.addItem("-- Select Progression --")
         self.load_progressions()
         self.progression_combo.currentTextChanged.connect(self.on_progression_selected)
@@ -55,8 +55,8 @@ class SettingsPage(QWidget):
         root_layout = QHBoxLayout()
         root_label = QLabel("Root note:")
         self.root_combo = QComboBox()
-        self.root_combo.setMinimumHeight(40)
-        self.root_combo.setStyleSheet("QComboBox { font-size: 15px; }")
+        self.root_combo.setMinimumHeight(45)
+        self.root_combo.setStyleSheet("QComboBox { font-size: 17px; }")
         for note in Chord.NOTES:
             self.root_combo.addItem(note)
         self.root_combo.currentTextChanged.connect(self.on_root_changed)
@@ -66,8 +66,8 @@ class SettingsPage(QWidget):
         voicing_layout = QHBoxLayout()
         voicing_label = QLabel("Voicing:")
         self.voicing_combo = QComboBox()
-        self.voicing_combo.setMinimumHeight(40)
-        self.voicing_combo.setStyleSheet("QComboBox { font-size: 15px; }")
+        self.voicing_combo.setMinimumHeight(45)
+        self.voicing_combo.setStyleSheet("QComboBox { font-size: 17px; }")
         self.voicing_combo.addItem("Triads")
         self.voicing_combo.addItem("7th Chords")
         self.voicing_combo.currentTextChanged.connect(self.on_voicing_changed)
@@ -75,13 +75,14 @@ class SettingsPage(QWidget):
         voicing_layout.addWidget(self.voicing_combo)
         
         self.preview_label = QLabel("")
-        self.preview_label.setStyleSheet("color: #333; font-style: italic; font-size: 15px; padding: 12px; background-color: white; border-radius: 5px; border: 1px solid #ddd;")
+        self.preview_label.setStyleSheet("color: #333; font-style: italic; font-size: 17px; padding: 12px; background-color: white; border-radius: 5px; border: 1px solid #ddd;")
         self.preview_label.setWordWrap(True)
-        self.preview_label.setMinimumHeight(50)
+        self.preview_label.setMinimumHeight(55)
+        self.preview_label.setTextInteractionFlags(Qt.TextSelectableByMouse)  # Make text selectable
         
         self.start_progression_btn = QPushButton("▶ Start Practice")
-        self.start_progression_btn.setMinimumHeight(50)
-        self.start_progression_btn.setStyleSheet("QPushButton { font-size: 16px; font-weight: bold; background-color: #4CAF50; color: white; border-radius: 5px; } QPushButton:hover { background-color: #45a049; }")
+        self.start_progression_btn.setMinimumHeight(55)
+        self.start_progression_btn.setStyleSheet("QPushButton { font-size: 18px; font-weight: bold; background-color: #4CAF50; color: white; border-radius: 5px; } QPushButton:hover { background-color: #45a049; }")
         self.start_progression_btn.clicked.connect(self.start_progression_practice)
         
         progression_layout.addWidget(QLabel("Progression:"))
@@ -97,7 +98,7 @@ class SettingsPage(QWidget):
         custom_group = QGroupBox("Option 2: Input Your Chord Progression")
         custom_group.setStyleSheet("""
             QGroupBox { 
-                font-size: 16px; 
+                font-size: 18px; 
                 font-weight: bold; 
                 padding-top: 15px;
                 background-color: rgba(33, 150, 243, 0.15);
@@ -110,19 +111,19 @@ class SettingsPage(QWidget):
                 left: 10px;
                 padding: 0 5px;
             }
-            QLabel { font-size: 15px; }
+            QLabel { font-size: 17px; }
         """)
         custom_layout = QVBoxLayout()
         custom_layout.setSpacing(12)
         
         self.chord_input = QLineEdit()
         self.chord_input.setPlaceholderText("Em, A, G, F#")
-        self.chord_input.setMinimumHeight(40)
-        self.chord_input.setStyleSheet("QLineEdit { font-size: 15px; padding: 8px; }")
+        self.chord_input.setMinimumHeight(45)
+        self.chord_input.setStyleSheet("QLineEdit { font-size: 17px; padding: 8px; }")
         
         self.start_custom_btn = QPushButton("▶ Start Practice")
-        self.start_custom_btn.setMinimumHeight(50)
-        self.start_custom_btn.setStyleSheet("QPushButton { font-size: 16px; font-weight: bold; background-color: #2196F3; color: white; border-radius: 5px; } QPushButton:hover { background-color: #0b7dda; }")
+        self.start_custom_btn.setMinimumHeight(55)
+        self.start_custom_btn.setStyleSheet("QPushButton { font-size: 18px; font-weight: bold; background-color: #2196F3; color: white; border-radius: 5px; } QPushButton:hover { background-color: #0b7dda; }")
         self.start_custom_btn.clicked.connect(self.start_custom_practice)
         
         custom_layout.addWidget(self.chord_input)
@@ -133,7 +134,7 @@ class SettingsPage(QWidget):
         settings_group = QGroupBox("Settings")
         settings_group.setStyleSheet("""
             QGroupBox { 
-                font-size: 16px; 
+                font-size: 18px; 
                 font-weight: bold; 
                 padding-top: 15px;
                 border: 2px solid #999;
@@ -151,17 +152,17 @@ class SettingsPage(QWidget):
         
         self.random_checkbox = QCheckBox("Random order")
         self.random_checkbox.setChecked(False)
-        self.random_checkbox.setStyleSheet("QCheckBox { font-size: 15px; }")
+        self.random_checkbox.setStyleSheet("QCheckBox { font-size: 17px; }")
         
         interval_label = QLabel("Interval (seconds):")
-        interval_label.setStyleSheet("QLabel { font-size: 15px; }")
+        interval_label.setStyleSheet("QLabel { font-size: 17px; }")
         self.interval_spin = QDoubleSpinBox()
         self.interval_spin.setRange(0.1, 30)
         self.interval_spin.setSingleStep(1.0)
         self.interval_spin.setDecimals(1)
         self.interval_spin.setValue(3)
-        self.interval_spin.setMinimumHeight(35)
-        self.interval_spin.setStyleSheet("QDoubleSpinBox { font-size: 15px; }")
+        self.interval_spin.setMinimumHeight(40)
+        self.interval_spin.setStyleSheet("QDoubleSpinBox { font-size: 17px; }")
         
         settings_layout.addWidget(self.random_checkbox)
         settings_layout.addWidget(interval_label)
