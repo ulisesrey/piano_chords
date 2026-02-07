@@ -17,6 +17,11 @@ ICON_FILE = piano_chords/logo/icon.icns
 run:
 	uv run $(MAIN_SCRIPT)
 
+## Run tests
+.PHONY: test
+test:
+	uv run pytest test_chords.py -v
+
 ## Build the app with PyInstaller (macOS GUI)
 .PHONY: build
 build:
