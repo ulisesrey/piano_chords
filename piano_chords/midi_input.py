@@ -6,6 +6,7 @@ class MidiListener:
         self.callback = callback
         self.error_callback = error_callback
         self.running = False
+        self.thread = None
 
     def start(self, device_name=None):
         try:
@@ -16,13 +17,13 @@ class MidiListener:
             if device_name is None:
                 device_name = inputs[0]
 
-            self.running = True
             self.thread = Thread(
                 target=self._listen,
                 args=(device_name,),
                 daemon=True
             )
             self.thread.start()
+            self.running = True
 
         except Exception as e:
             self.running = False
@@ -35,7 +36,19 @@ class MidiListener:
                 while self.running:
                     for msg in inport.iter_pending():
                         if msg.type in ("note_on", "note_off"):
-                            self.callback(msg)
+                            try:
+                                self.callback(msg)
+                            except Exception as callback_error:
+                                # Don't let callback errors stop the listener
+                                if self.error_callback:
+                                    self.error_callback(f"Callback error: {callback_error}")
         except Exception as e:
+            self.running = False
             if self.error_callback:
                 self.error_callback(str(e))
+    
+    def stop(self):
+        """Stop the MIDI listener thread"""
+        self.running = False
+        if self.thread and self.thread.is_alive():
+            self.thread.join(timeout=1.0)

@@ -24,7 +24,7 @@ class PracticePage(QWidget):
         self.current_pressed = set()
         self.chord_completed = False
         self.first_note_pressed = False
-        self.current_chord = ""
+        self.current_chord = None
 
         # Blinking
         self.blink_timer = QTimer()
@@ -108,8 +108,12 @@ class PracticePage(QWidget):
         self.selected_roots = list(selected_roots)
         self.chord_types = list(chord_types)
         self.custom_chords = []
+        self.random_mode = True
+        self.chord_index = 0
+        self.progression_title = None
         self.interval = interval * 1000
         
+        self.title_label.setText("")
         self.feedback_label.setText("Get ready..")
         self.feedback_label.setStyleSheet("font-size: 60px; color: #3498db; font-weight: bold; padding: 20px;")
         self.next_chord()
@@ -160,7 +164,7 @@ class PracticePage(QWidget):
             self.chord_label.setText("No chords selected")
             return
 
-        if self.random_mode and self.current_chord == self.previous_chord and len(self.custom_chords or self.selected_roots) > 1:
+        if self.random_mode and self.current_chord == self.previous_chord and len(self.custom_chords if self.custom_chords else self.selected_roots) > 1:
             if self.custom_chords:
                 available = [c for c in self.custom_chords if c != self.previous_chord]
                 if available:
@@ -231,13 +235,12 @@ class PracticePage(QWidget):
         num_required = len(required_notes)
 
         if required_notes.issubset(self.current_pressed):
-            self.chord_completed = True
-            self.feedback_label.setText("✓ Correct!")
-            self.feedback_label.setStyleSheet("color: #27ae60; font-size: 120px; font-weight: bold; padding: 20px;")
+            self.show_correct_feedback()
         elif not self.chord_completed:
             self.feedback_label.setText(f"{num_correct}/{num_required} notes")
             self.feedback_label.setStyleSheet("color: #e67e22; font-size: 120px; font-weight: bold; padding: 20px;")
 
     def back_to_settings(self):
         self.timer.stop()
+        self.midi_listener.stop()
         self.main_window.back_to_settings()

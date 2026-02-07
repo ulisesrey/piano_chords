@@ -19,6 +19,7 @@ class SettingsPage(QWidget):
     def __init__(self, main_window):
         super().__init__()
         self.main_window = main_window
+        self.progressions_data = {}  # Cache for progressions
         
         # Set minimum size for better layout
         self.setMinimumWidth(750)
@@ -181,7 +182,8 @@ class SettingsPage(QWidget):
         self.setLayout(layout)
         
         # Set default progression after UI is initialized
-        self.progression_combo.setCurrentIndex(1)
+        if self.progression_combo.count() > 1:
+            self.progression_combo.setCurrentIndex(1)
 
     def load_progressions(self):
         """Load chord progressions from YAML file"""
@@ -189,10 +191,12 @@ class SettingsPage(QWidget):
             yaml_path = os.path.join(os.path.dirname(__file__), '..', 'progressions.yaml')
             with open(yaml_path, 'r') as f:
                 data = yaml.safe_load(f)
-                for name in data['progressions'].keys():
+                self.progressions_data = data.get('progressions', {})
+                for name in self.progressions_data.keys():
                     self.progression_combo.addItem(name)
-        except Exception as e:
+        except (FileNotFoundError, yaml.YAMLError) as e:
             print(f"Could not load progressions: {e}")
+            self.progressions_data = {}
     
     def on_progression_selected(self, progression_name):
         """Load selected progression into chord input"""
@@ -217,15 +221,10 @@ class SettingsPage(QWidget):
         root = self.root_combo.currentText()
         voicing = self.voicing_combo.currentText()
         
-        try:
-            yaml_path = os.path.join(os.path.dirname(__file__), '..', 'progressions.yaml')
-            with open(yaml_path, 'r') as f:
-                data = yaml.safe_load(f)
-                progression = data['progressions'].get(progression_name, "")
-                transposed = self.transpose_progression(progression, root, voicing)
-                self.preview_label.setText(transposed)
-        except Exception as e:
-            print(f"Could not load progression: {e}")
+        progression = self.progressions_data.get(progression_name, "")
+        if progression:
+            transposed = self.transpose_progression(progression, root, voicing)
+            self.preview_label.setText(transposed)
     
     def transpose_progression(self, progression, root, voicing="Triads"):
         """Transpose Roman numeral progression to specific root"""
