@@ -5,10 +5,10 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QCheckBox,
-    QSpinBox,
     QDoubleSpinBox,
     QLineEdit,
     QComboBox,
+    QGroupBox,
 )
 import yaml
 import os
@@ -20,59 +20,62 @@ class SettingsPage(QWidget):
         super().__init__()
         self.main_window = main_window
 
-        # Progression dropdown
-        progression_label = QLabel("Or select a progression:")
+        # Option 1: Select Progression
+        progression_group = QGroupBox("Option 1: Select a Progression")
+        progression_layout = QVBoxLayout()
+        
         self.progression_combo = QComboBox()
         self.progression_combo.addItem("-- Select Progression --")
         self.load_progressions()
         self.progression_combo.currentTextChanged.connect(self.on_progression_selected)
         
-        # Custom chord input
-        chord_input_label = QLabel("Enter chords (e.g., Em, A, G, F#):")
+        root_layout = QHBoxLayout()
+        root_label = QLabel("Root note:")
+        self.root_combo = QComboBox()
+        for note in Chord.NOTES:
+            self.root_combo.addItem(note)
+        self.root_combo.currentTextChanged.connect(self.on_root_changed)
+        root_layout.addWidget(root_label)
+        root_layout.addWidget(self.root_combo)
+        
+        self.preview_label = QLabel("")
+        self.preview_label.setStyleSheet("color: gray; font-style: italic;")
+        self.preview_label.setWordWrap(True)
+        
+        progression_layout.addWidget(QLabel("Progression:"))
+        progression_layout.addWidget(self.progression_combo)
+        progression_layout.addLayout(root_layout)
+        progression_layout.addWidget(QLabel("Preview:"))
+        progression_layout.addWidget(self.preview_label)
+        progression_group.setLayout(progression_layout)
+        
+        # Option 2: Custom Input
+        custom_group = QGroupBox("Option 2: Input Your Chord Progression")
+        custom_layout = QVBoxLayout()
+        
         self.chord_input = QLineEdit()
         self.chord_input.setPlaceholderText("Em, A, G, F#")
-        self.random_checkbox = QCheckBox("Random order")
-        self.random_checkbox.setChecked(False)
         
-        # Chord selection
-        self.selected_notes = set()
-        self.chord_buttons = {}
-
-        note_layout = QHBoxLayout()
-        for note in Chord.NOTES:
-            btn = QPushButton(note)
-            btn.setCheckable(True)
-            btn.clicked.connect(lambda checked, n=note: self.toggle_note(n))
-            note_layout.addWidget(btn)
-            self.chord_buttons[note] = btn
-
-        # Chord types
-        self.chord_types = set()
-        type_layout = QHBoxLayout()
-
-        self.chord_type_checkboxes = {}
-
-        # read from the Chord class the Formulas
-        formulas = list(Chord.FORMULAS.keys())
-
-        for formula in formulas:
-            cb = QCheckBox(formula)
-            cb.toggled.connect(
-                lambda checked, ct=formula: self.toggle_type(ct, checked)
-            )
-            type_layout.addWidget(cb)
-            self.chord_type_checkboxes[formula] = cb
-
-        # Interval
-        interval_layout = QHBoxLayout()
+        custom_layout.addWidget(self.chord_input)
+        custom_group.setLayout(custom_layout)
+        
+        # Common settings
+        settings_layout = QHBoxLayout()
+        
+        self.random_checkbox = QCheckBox("Random order")
+        self.random_checkbox.setChecked(True)
+        
         interval_label = QLabel("Interval (seconds):")
         self.interval_spin = QDoubleSpinBox()
         self.interval_spin.setRange(0.1, 30)
-        self.interval_spin.setSingleStep(0.1) # step size
+        self.interval_spin.setSingleStep(0.1)
         self.interval_spin.setDecimals(1)
         self.interval_spin.setValue(3)
-        interval_layout.addWidget(interval_label)
-        interval_layout.addWidget(self.interval_spin)
+        
+        settings_layout.addWidget(self.random_checkbox)
+        settings_layout.addWidget(interval_label)
+        settings_layout.addWidget(self.interval_spin)
+        settings_layout.addStretch()
 
         # Start practice button
         self.start_btn = QPushButton("Start Practice")
@@ -80,29 +83,12 @@ class SettingsPage(QWidget):
 
         # Main layout
         layout = QVBoxLayout()
-        layout.addWidget(progression_label)
-        layout.addWidget(self.progression_combo)
-        layout.addWidget(chord_input_label)
-        layout.addWidget(self.chord_input)
-        layout.addWidget(self.random_checkbox)
-        layout.addLayout(note_layout)
-        layout.addLayout(type_layout)
-        layout.addLayout(interval_layout)
+        layout.addWidget(progression_group)
+        layout.addWidget(custom_group)
+        layout.addLayout(settings_layout)
         layout.addWidget(self.start_btn)
         layout.addStretch()
         self.setLayout(layout)
-
-    def toggle_note(self, note):
-        if note in self.selected_notes:
-            self.selected_notes.remove(note)
-        else:
-            self.selected_notes.add(note)
-
-    def toggle_type(self, chord_type, checked):
-        if checked:
-            self.chord_types.add(chord_type)
-        else:
-            self.chord_types.discard(chord_type)
 
     def load_progressions(self):
         """Load chord progressions from YAML file"""
@@ -118,15 +104,77 @@ class SettingsPage(QWidget):
     def on_progression_selected(self, progression_name):
         """Load selected progression into chord input"""
         if progression_name == "-- Select Progression --":
+            self.preview_label.setText("")
             return
+        self.transpose_and_load_progression()
+    
+    def on_root_changed(self):
+        """Transpose progression when root changes"""
+        if self.progression_combo.currentText() != "-- Select Progression --":
+            self.transpose_and_load_progression()
+    
+    def transpose_and_load_progression(self):
+        """Transpose progression to selected root"""
+        progression_name = self.progression_combo.currentText()
+        root = self.root_combo.currentText()
+        
         try:
             yaml_path = os.path.join(os.path.dirname(__file__), '..', 'progressions.yaml')
             with open(yaml_path, 'r') as f:
                 data = yaml.safe_load(f)
-                chords = data['progressions'].get(progression_name, "")
-                self.chord_input.setText(chords)
+                progression = data['progressions'].get(progression_name, "")
+                transposed = self.transpose_progression(progression, root)
+                self.preview_label.setText(transposed)
         except Exception as e:
             print(f"Could not load progression: {e}")
+    
+    def transpose_progression(self, progression, root):
+        """Transpose Roman numeral progression to specific root"""
+        # If already in chord notation, return as is
+        if not any(numeral in progression for numeral in ['I', 'V', 'i', 'v', 'ii', 'iii', 'iv', 'vi', 'vii']):
+            return progression
+        
+        root_idx = Chord.NOTES.index(root)
+        
+        # Major scale intervals
+        major_intervals = {'I': 0, 'ii': 2, 'iii': 4, 'IV': 5, 'V': 7, 'vi': 9, 'vii': 11, 'bVII': 10, 'bIII': 3}
+        quality_map = {'I': '', 'ii': 'm', 'iii': 'm', 'IV': '', 'V': '', 'vi': 'm', 'vii': '°', 'i': 'm', 'bVII': '', 'bIII': ''}
+        
+        result = []
+        for chord in progression.split(','):
+            chord = chord.strip()
+            
+            # Parse Roman numeral
+            numeral = chord.rstrip('7maj+°ø')
+            suffix = chord[len(numeral):]
+            
+            if numeral in major_intervals:
+                interval = major_intervals[numeral]
+                chord_root = Chord.NOTES[(root_idx + interval) % 12]
+                base_quality = quality_map.get(numeral, '')
+                result.append(f"{chord_root}{suffix if suffix else base_quality}")
+            else:
+                result.append(chord)
+        
+        return ', '.join(result)
+    
+    def parse_chord_text(self, chord_text):
+        """Parse chord text into list of Chord objects"""
+        chord_text = chord_text.strip()
+        if not chord_text:
+            return []
+        
+        chords = []
+        for chord_str in chord_text.split(','):
+            chord_str = chord_str.strip()
+            if not chord_str:
+                continue
+                
+            # Parse chord symbol to root and quality
+            root, quality = self.parse_chord_symbol(chord_str)
+            if root and quality:
+                chords.append(Chord(root, quality))
+        return chords
     
     def parse_chord_input(self):
         chord_text = self.chord_input.text().strip()
@@ -177,20 +225,22 @@ class SettingsPage(QWidget):
         return root, quality
 
     def start_practice(self):
-        # Check if custom chords are entered
+        # Check if progression is selected (Option 1)
+        if self.progression_combo.currentText() != "-- Select Progression --" and self.preview_label.text():
+            chords_text = self.preview_label.text()
+            custom_chords = self.parse_chord_text(chords_text)
+            if custom_chords:
+                interval = self.interval_spin.value()
+                random_mode = self.random_checkbox.isChecked()
+                progression_title = self.progression_combo.currentText()
+                self.main_window.start_practice_with_chords(custom_chords, interval, random_mode, progression_title)
+                return
+        
+        # Check if custom chords are entered (Option 2)
         custom_chords = self.parse_chord_input()
         if custom_chords:
             interval = self.interval_spin.value()
             random_mode = self.random_checkbox.isChecked()
-            # Check if progression was selected from dropdown
-            progression_title = None
-            if self.progression_combo.currentText() != "-- Select Progression --":
-                progression_title = self.progression_combo.currentText()
-            self.main_window.start_practice_with_chords(custom_chords, interval, random_mode, progression_title)
-        elif self.selected_notes and self.chord_types:
-            interval = self.interval_spin.value()
-            self.main_window.start_practice(
-                self.selected_notes, self.chord_types, interval
-            )
+            self.main_window.start_practice_with_chords(custom_chords, interval, random_mode, None)
         else:
-            print("Enter chords or select at least one note and chord type")
+            print("Select a progression or enter custom chords")
