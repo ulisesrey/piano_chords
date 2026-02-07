@@ -191,12 +191,17 @@ class PracticePage(QWidget):
         if not self.current_chord:
             return
 
-        if set(self.current_chord.notes).issubset(self.current_pressed):
+        required_notes = set(self.current_chord.notes)
+        pressed_correct = required_notes & self.current_pressed
+        num_correct = len(pressed_correct)
+        num_required = len(required_notes)
+
+        if required_notes.issubset(self.current_pressed):
             self.feedback_label.setText("Correct!")
             self.feedback_label.setStyleSheet("color: green; font-size: 100px;")
         else:
-            self.feedback_label.setText("Play all notes")
-            self.feedback_label.setStyleSheet("color: red; font-size: 100px;")
+            self.feedback_label.setText(f"{num_correct}/{num_required} notes")
+            self.feedback_label.setStyleSheet("color: orange; font-size: 100px;")
 
 
     def back_to_settings(self):
