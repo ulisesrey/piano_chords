@@ -28,7 +28,6 @@ class SettingsPage(QWidget):
         self.progression_combo.addItem("-- Select Progression --")
         self.load_progressions()
         self.progression_combo.currentTextChanged.connect(self.on_progression_selected)
-        self.progression_combo.setCurrentIndex(1)  # Select first progression by default
         
         root_layout = QHBoxLayout()
         root_label = QLabel("Root note:")
@@ -79,7 +78,7 @@ class SettingsPage(QWidget):
         interval_label = QLabel("Interval (seconds):")
         self.interval_spin = QDoubleSpinBox()
         self.interval_spin.setRange(0.1, 30)
-        self.interval_spin.setSingleStep(0.1)
+        self.interval_spin.setSingleStep(1.0)
         self.interval_spin.setDecimals(1)
         self.interval_spin.setValue(3)
         
@@ -100,6 +99,9 @@ class SettingsPage(QWidget):
         layout.addWidget(self.start_btn)
         layout.addStretch()
         self.setLayout(layout)
+        
+        # Set default progression after UI is initialized
+        self.progression_combo.setCurrentIndex(1)
 
     def load_progressions(self):
         """Load chord progressions from YAML file"""
