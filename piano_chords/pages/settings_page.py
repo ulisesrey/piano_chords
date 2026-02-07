@@ -38,6 +38,15 @@ class SettingsPage(QWidget):
         root_layout.addWidget(root_label)
         root_layout.addWidget(self.root_combo)
         
+        voicing_layout = QHBoxLayout()
+        voicing_label = QLabel("Voicing:")
+        self.voicing_combo = QComboBox()
+        self.voicing_combo.addItem("Triads")
+        self.voicing_combo.addItem("7th Chords")
+        self.voicing_combo.currentTextChanged.connect(self.on_voicing_changed)
+        voicing_layout.addWidget(voicing_label)
+        voicing_layout.addWidget(self.voicing_combo)
+        
         self.preview_label = QLabel("")
         self.preview_label.setStyleSheet("color: gray; font-style: italic;")
         self.preview_label.setWordWrap(True)
@@ -45,6 +54,7 @@ class SettingsPage(QWidget):
         progression_layout.addWidget(QLabel("Progression:"))
         progression_layout.addWidget(self.progression_combo)
         progression_layout.addLayout(root_layout)
+        progression_layout.addLayout(voicing_layout)
         progression_layout.addWidget(QLabel("Preview:"))
         progression_layout.addWidget(self.preview_label)
         progression_group.setLayout(progression_layout)
@@ -113,22 +123,28 @@ class SettingsPage(QWidget):
         if self.progression_combo.currentText() != "-- Select Progression --":
             self.transpose_and_load_progression()
     
+    def on_voicing_changed(self):
+        """Update progression when voicing changes"""
+        if self.progression_combo.currentText() != "-- Select Progression --":
+            self.transpose_and_load_progression()
+    
     def transpose_and_load_progression(self):
         """Transpose progression to selected root"""
         progression_name = self.progression_combo.currentText()
         root = self.root_combo.currentText()
+        voicing = self.voicing_combo.currentText()
         
         try:
             yaml_path = os.path.join(os.path.dirname(__file__), '..', 'progressions.yaml')
             with open(yaml_path, 'r') as f:
                 data = yaml.safe_load(f)
                 progression = data['progressions'].get(progression_name, "")
-                transposed = self.transpose_progression(progression, root)
+                transposed = self.transpose_progression(progression, root, voicing)
                 self.preview_label.setText(transposed)
         except Exception as e:
             print(f"Could not load progression: {e}")
     
-    def transpose_progression(self, progression, root):
+    def transpose_progression(self, progression, root, voicing="Triads"):
         """Transpose Roman numeral progression to specific root"""
         # If already in chord notation, return as is
         if not any(numeral in progression for numeral in ['I', 'V', 'i', 'v', 'ii', 'iii', 'iv', 'vi', 'vii']):
@@ -139,6 +155,9 @@ class SettingsPage(QWidget):
         # Major scale intervals
         major_intervals = {'I': 0, 'ii': 2, 'iii': 4, 'IV': 5, 'V': 7, 'vi': 9, 'vii': 11, 'bVII': 10, 'bIII': 3}
         quality_map = {'I': '', 'ii': 'm', 'iii': 'm', 'IV': '', 'V': '', 'vi': 'm', 'vii': '°', 'i': 'm', 'bVII': '', 'bIII': ''}
+        
+        # 7th chord extensions
+        seventh_map = {'I': 'maj7', 'ii': '7', 'iii': '7', 'IV': 'maj7', 'V': '7', 'vi': '7', 'vii': '7', 'i': '7', 'bVII': '7', 'bIII': 'maj7'}
         
         result = []
         for chord in progression.split(','):
@@ -151,8 +170,16 @@ class SettingsPage(QWidget):
             if numeral in major_intervals:
                 interval = major_intervals[numeral]
                 chord_root = Chord.NOTES[(root_idx + interval) % 12]
-                base_quality = quality_map.get(numeral, '')
-                result.append(f"{chord_root}{suffix if suffix else base_quality}")
+                
+                if voicing == "7th Chords" and not suffix:
+                    # Add 7th extension
+                    base_quality = quality_map.get(numeral, '')
+                    seventh = seventh_map.get(numeral, '7')
+                    result.append(f"{chord_root}{base_quality}{seventh}")
+                else:
+                    # Use original suffix or base quality
+                    base_quality = quality_map.get(numeral, '')
+                    result.append(f"{chord_root}{suffix if suffix else base_quality}")
             else:
                 result.append(chord)
         
