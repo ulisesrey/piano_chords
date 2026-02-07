@@ -51,12 +51,16 @@ class SettingsPage(QWidget):
         self.preview_label.setStyleSheet("color: gray; font-style: italic;")
         self.preview_label.setWordWrap(True)
         
+        self.start_progression_btn = QPushButton("Start Practice")
+        self.start_progression_btn.clicked.connect(self.start_progression_practice)
+        
         progression_layout.addWidget(QLabel("Progression:"))
         progression_layout.addWidget(self.progression_combo)
         progression_layout.addLayout(root_layout)
         progression_layout.addLayout(voicing_layout)
         progression_layout.addWidget(QLabel("Preview:"))
         progression_layout.addWidget(self.preview_label)
+        progression_layout.addWidget(self.start_progression_btn)
         progression_group.setLayout(progression_layout)
         
         # Option 2: Custom Input
@@ -66,7 +70,11 @@ class SettingsPage(QWidget):
         self.chord_input = QLineEdit()
         self.chord_input.setPlaceholderText("Em, A, G, F#")
         
+        self.start_custom_btn = QPushButton("Start Practice")
+        self.start_custom_btn.clicked.connect(self.start_custom_practice)
+        
         custom_layout.addWidget(self.chord_input)
+        custom_layout.addWidget(self.start_custom_btn)
         custom_group.setLayout(custom_layout)
         
         # Common settings
@@ -87,16 +95,11 @@ class SettingsPage(QWidget):
         settings_layout.addWidget(self.interval_spin)
         settings_layout.addStretch()
 
-        # Start practice button
-        self.start_btn = QPushButton("Start Practice")
-        self.start_btn.clicked.connect(self.start_practice)
-
         # Main layout
         layout = QVBoxLayout()
         layout.addWidget(progression_group)
         layout.addWidget(custom_group)
         layout.addLayout(settings_layout)
-        layout.addWidget(self.start_btn)
         layout.addStretch()
         self.setLayout(layout)
         
@@ -188,6 +191,29 @@ class SettingsPage(QWidget):
         
         return ', '.join(result)
     
+    def start_progression_practice(self):
+        """Start practice with selected progression"""
+        if self.progression_combo.currentText() != "-- Select Progression --" and self.preview_label.text():
+            chords_text = self.preview_label.text()
+            custom_chords = self.parse_chord_text(chords_text)
+            if custom_chords:
+                interval = self.interval_spin.value()
+                random_mode = self.random_checkbox.isChecked()
+                progression_title = self.progression_combo.currentText()
+                self.main_window.start_practice_with_chords(custom_chords, interval, random_mode, progression_title)
+        else:
+            print("Select a progression first")
+    
+    def start_custom_practice(self):
+        """Start practice with custom chord input"""
+        custom_chords = self.parse_chord_input()
+        if custom_chords:
+            interval = self.interval_spin.value()
+            random_mode = self.random_checkbox.isChecked()
+            self.main_window.start_practice_with_chords(custom_chords, interval, random_mode, None)
+        else:
+            print("Enter custom chords first")
+    
     def parse_chord_text(self, chord_text):
         """Parse chord text into list of Chord objects"""
         chord_text = chord_text.strip()
@@ -253,24 +279,3 @@ class SettingsPage(QWidget):
         
         quality = suffix_map.get(suffix)
         return root, quality
-
-    def start_practice(self):
-        # Check if progression is selected (Option 1)
-        if self.progression_combo.currentText() != "-- Select Progression --" and self.preview_label.text():
-            chords_text = self.preview_label.text()
-            custom_chords = self.parse_chord_text(chords_text)
-            if custom_chords:
-                interval = self.interval_spin.value()
-                random_mode = self.random_checkbox.isChecked()
-                progression_title = self.progression_combo.currentText()
-                self.main_window.start_practice_with_chords(custom_chords, interval, random_mode, progression_title)
-                return
-        
-        # Check if custom chords are entered (Option 2)
-        custom_chords = self.parse_chord_input()
-        if custom_chords:
-            interval = self.interval_spin.value()
-            random_mode = self.random_checkbox.isChecked()
-            self.main_window.start_practice_with_chords(custom_chords, interval, random_mode, None)
-        else:
-            print("Select a progression or enter custom chords")
