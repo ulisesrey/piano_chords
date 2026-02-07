@@ -1,5 +1,6 @@
 import mido
 from threading import Thread
+import time
 
 class MidiListener:
     def __init__(self, callback, error_callback=None):
@@ -9,6 +10,10 @@ class MidiListener:
         self.thread = None
 
     def start(self, device_name=None):
+        # Stop any existing listener first
+        if self.running:
+            self.stop()
+        
         try:
             inputs = mido.get_input_names()
             if not inputs:
@@ -17,13 +22,13 @@ class MidiListener:
             if device_name is None:
                 device_name = inputs[0]
 
+            self.running = True
             self.thread = Thread(
                 target=self._listen,
                 args=(device_name,),
                 daemon=True
             )
             self.thread.start()
-            self.running = True
 
         except Exception as e:
             self.running = False
@@ -42,6 +47,7 @@ class MidiListener:
                                 # Don't let callback errors stop the listener
                                 if self.error_callback:
                                     self.error_callback(f"Callback error: {callback_error}")
+                    time.sleep(0.001)  # Small sleep to avoid busy-waiting
         except Exception as e:
             self.running = False
             if self.error_callback:

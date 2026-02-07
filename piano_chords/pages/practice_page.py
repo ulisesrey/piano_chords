@@ -201,7 +201,7 @@ class PracticePage(QWidget):
         action, note_name = msg
         if action == "on":
             self.current_pressed.add(note_name)
-            if set(self.current_chord.notes).issubset(self.current_pressed):
+            if self.current_chord and set(self.current_chord.notes).issubset(self.current_pressed):
                 self.feedback_timer.stop()
                 self.show_correct_feedback()
             else:
