@@ -25,6 +25,9 @@ class PracticePage(QWidget):
         self.previous_chord = None
         # Current pressed
         self.current_pressed = set() # currently pressed notes
+        # Chord completion state
+        self.chord_completed = False  # Track if current chord was played correctly
+        self.first_note_pressed = False  # Track if any note has been pressed
 
         # Current Chord
         self.current_chord = "" # TODO: Should replace to None?
@@ -33,6 +36,11 @@ class PracticePage(QWidget):
         self.blink_timer = QTimer()
         self.blink_timer.setSingleShot(True)
         self.blink_timer.timeout.connect(self.show_chord_label)
+        
+        # Feedback delay timer
+        self.feedback_timer = QTimer()
+        self.feedback_timer.setSingleShot(True)
+        self.feedback_timer.timeout.connect(self.update_feedback)
 
         # Progression title label
         self.title_label = QLabel("")
@@ -160,6 +168,9 @@ class PracticePage(QWidget):
         self.chord_label.setText("")            # hide chord
         self.feedback_label.setText("")        # clear feedback
         self.current_pressed.clear()
+        self.chord_completed = False             # reset completion state
+        self.first_note_pressed = False          # reset first note flag
+        self.feedback_timer.stop()               # stop any pending feedback
 
         self.blink_timer.start(250)              # show after 250ms
 
@@ -182,11 +193,33 @@ class PracticePage(QWidget):
         action, note_name = msg
         if action == "on":
             self.current_pressed.add(note_name)
+            # Check if chord is correct immediately
+            if set(self.current_chord.notes).issubset(self.current_pressed):
+                self.feedback_timer.stop()
+                self.show_correct_feedback()
+            else:
+                # Delay error feedback
+                if not self.first_note_pressed:
+                    self.first_note_pressed = True
+                self.feedback_timer.stop()
+                self.feedback_timer.start(150)
         else:
             self.current_pressed.discard(note_name)
-        self.check_chord()
+            if self.first_note_pressed and not self.chord_completed:
+                self.feedback_timer.stop()
+                self.feedback_timer.start(150)
     
 
+    def update_feedback(self):
+        """Called after delay to show initial feedback"""
+        self.check_chord()
+    
+    def show_correct_feedback(self):
+        """Show correct feedback immediately"""
+        self.chord_completed = True
+        self.feedback_label.setText("Correct!")
+        self.feedback_label.setStyleSheet("color: green; font-size: 100px;")
+    
     def check_chord(self):
         if not self.current_chord:
             return
@@ -197,9 +230,10 @@ class PracticePage(QWidget):
         num_required = len(required_notes)
 
         if required_notes.issubset(self.current_pressed):
+            self.chord_completed = True
             self.feedback_label.setText("Correct!")
             self.feedback_label.setStyleSheet("color: green; font-size: 100px;")
-        else:
+        elif not self.chord_completed:
             self.feedback_label.setText(f"{num_correct}/{num_required} notes")
             self.feedback_label.setStyleSheet("color: orange; font-size: 100px;")
 
