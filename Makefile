@@ -32,6 +32,7 @@ build:
 		--icon=$(ICON_FILE) \
 		--collect-submodules piano_chords.pages \
 		--collect-submodules mido.backends \
+		--add-data "piano_chords/progressions.yaml:piano_chords" \
 		$(MAIN_SCRIPT)
 
 ## Zip the .app for distribution

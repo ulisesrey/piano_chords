@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (
 )
 import yaml
 import os
+import sys
 from PySide6.QtCore import Qt
 from piano_chords.chord_generator import Chord
 
@@ -188,7 +189,12 @@ class SettingsPage(QWidget):
     def load_progressions(self):
         """Load chord progressions from YAML file"""
         try:
-            yaml_path = os.path.join(os.path.dirname(__file__), '..', 'progressions.yaml')
+            # Handle PyInstaller bundled path
+            if getattr(sys, 'frozen', False):
+                base_path = sys._MEIPASS
+            else:
+                base_path = os.path.dirname(__file__)
+            yaml_path = os.path.join(base_path, 'piano_chords', 'progressions.yaml')
             with open(yaml_path, 'r') as f:
                 data = yaml.safe_load(f)
                 self.progressions_data = data.get('progressions', {})
