@@ -1,6 +1,6 @@
 # Piano Chords Trainer
 
-App to learn chords and chord progressions
+App to learn chords and chord progressions. For the sister project Piano Chords cellphone app check [here](https://github.com/ulisesrey/piano_chords_app) (Private repository).
 
 
 ## Run
