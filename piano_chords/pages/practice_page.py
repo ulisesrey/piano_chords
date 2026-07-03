@@ -149,6 +149,11 @@ class PracticePage(QWidget):
         )
 
     def next_chord(self):
+        """if midi cable is found again => error message disappears"""
+        self.midi_error_label.setText("")
+        """start method checks already for connected devices"""
+        self.midi_listener.start()
+
         """Pick a random chord to display"""
         if self.custom_chords:
             if self.random_mode:
