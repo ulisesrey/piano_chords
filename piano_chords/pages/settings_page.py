@@ -194,7 +194,10 @@ class SettingsPage(QWidget):
                 base_path = sys._MEIPASS
             else:
                 base_path = os.path.dirname(__file__)
-            yaml_path = os.path.join(base_path, 'piano_chords', 'progressions.yaml')
+                """Because __file__ is calling the path of the current file (settings_page.py)
+                we don't get the path of progression.yaml (which is one directory up)"""
+                corrected_path = base_path[:-len("/pages")]
+            yaml_path = os.path.join(corrected_path, 'progressions.yaml')
             with open(yaml_path, 'r') as f:
                 data = yaml.safe_load(f)
                 self.progressions_data = data.get('progressions', {})
